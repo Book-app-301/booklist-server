@@ -7,13 +7,9 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT;
 const CLIENT_URL = process.env.CLIENT_URL;
-
-
 const client = new pg.Client(process.env.DATABASE_URL);
 client.connect();
-//wrote after code review
 client.on('error', err => console.error(err));
-
 app.use(cors());
 
 
@@ -23,19 +19,18 @@ app.get('/api/v1/books', (req, res) => {
     .catch(console.error);
 });
 
-//after code review
-app.get('*', (req, res) => res.redirect(CLIENT_URL));
-app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
+
 
 
 app.get('/api/v1/books/:id', (req, res) => {
+  console.log('me again');
   client.query(`SELECT * FROM books WHERE book_id = ${req.params.id}`)
     .then(results => res.send(results.rows))
     .catch(console.error);
 });
 
 
-app.post('/api/v1/books', bodyParser, 
+app.post('/api/v1/books/new', bodyParser,
   (request, res) => {
     client.query(`INSERT INTO books(author, title, isbn, image_url, description) VALUES ($1, $2, $3, $4, $5);
   `,
@@ -48,12 +43,13 @@ app.post('/api/v1/books', bodyParser,
     ]
     )
       .then(() => res.send('book added'))
-      
       .catch(console.error);
     
   });
 
 app.get('*', (req, res)=> res.redirect(CLIENT_URL));
+
+app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
 
 
 // export PORT=3000
